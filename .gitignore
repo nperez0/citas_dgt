@@ -7,6 +7,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/Dotnet.gitignore
 
+# Allow .github folder (override global gitignore)
+!.github/
+
 # User-specific files
 *.suo
 *.user

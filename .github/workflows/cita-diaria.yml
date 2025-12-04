@@ -1,0 +1,50 @@
+
+name: Cita diaria
+
+on:
+  schedule:
+    - cron: "1 9 * * *" # Corre todos los días a las 09:01 UTC
+  workflow_dispatch: {}
+
+jobs:
+  run-playwright:
+    runs-on: ubuntu-latest
+
+    env:
+      # Variables que tu app usa (se definen como Secrets en GitHub):
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+      # Si tienes otras, añádelas aquí.
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore src/Citas/Citas.csproj
+
+      - name: Build
+        run: dotnet build src/Citas/Citas.csproj --configuration Release --no-restore
+
+      - name: Install Patchright browsers (with deps)
+        run: |
+          cd src/Citas
+          dotnet tool install --global Patchright.CLI || true
+          patchright install chromium --with-deps
+
+      - name: Run job
+        run: dotnet run --configuration Release --project src/Citas/Citas.csproj
+
+      - name: Upload log files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: citas-logs-${{ github.run_number }}
+          path: |
+            src/Citas/logs/*.log
+          if-no-files-found: warn
