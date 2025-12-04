@@ -11,10 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # Variables que tu app usa (se definen como Secrets en GitHub):
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
-      # Si tienes otras, añádelas aquí.
 
     steps:
       - name: Checkout
@@ -46,5 +44,7 @@ jobs:
         with:
           name: citas-logs-${{ github.run_number }}
           path: |
+            logs/*.log
+            src/Citas/logs/*.log
             src/Citas/bin/Release/net10.0/logs/*.log
           if-no-files-found: warn

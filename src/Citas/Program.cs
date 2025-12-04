@@ -70,12 +70,12 @@ try
     if (await selCalendario.IsVisibleAsync())
     {
         Log.Information("✓ ¡Citas disponibles!");
-        await SendMessageAsync("¡Citas disponibles!");
+        //await SendMessageAsync("¡Citas disponibles!");
     }
     else
     {
         Log.Information("✗ No hay citas disponibles");
-        await SendMessageAsync("No hay citas disponibles");
+        //await SendMessageAsync("No hay citas disponibles");
     }
     
     Log.Information("Aplicación finalizada correctamente");
@@ -111,6 +111,7 @@ async Task SendMessageAsync(string text)
 {
     var token = Environment.GetEnvironmentVariable("TELEGRAM_BOT_TOKEN");
     var chatId = Environment.GetEnvironmentVariable("TELEGRAM_CHAT_ID");
+    
     if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(chatId))
         throw new InvalidOperationException("Faltan TELEGRAM_BOT_TOKEN o TELEGRAM_CHAT_ID.");
 
