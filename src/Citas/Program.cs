@@ -69,7 +69,7 @@ try
     Log.Information("Esperando que la sección de cita sea visible...");
     try
     {
-        await selCita.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 60000 });
+        await selCita.WaitForAsync(new() { State = WaitForSelectorState.Visible });
         Log.Information("Sección de cita visible");
     }
     catch (TimeoutException)
@@ -79,7 +79,7 @@ try
         
         // Log del HTML actual para debugging
         var bodyHtml = await page.Locator("body").InnerHTMLAsync();
-        Log.Information("HTML actual (primeros 1000 caracteres): {Html}", bodyHtml.Substring(0, Math.Min(1000, bodyHtml.Length)));
+        Log.Information("HTML actual (1000 caracteres): {Html}", bodyHtml.Substring(20500, 21500));
         throw;
     }
 
