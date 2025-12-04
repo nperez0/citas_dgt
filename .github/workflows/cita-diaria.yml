@@ -45,6 +45,13 @@ jobs:
           name: citas-logs-${{ github.run_number }}
           path: |
             logs/*.log
-            src/Citas/logs/*.log
-            src/Citas/bin/Release/net10.0/logs/*.log
           if-no-files-found: warn
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-${{ github.run_number }}
+          path: |
+            *.png
+          if-no-files-found: ignore

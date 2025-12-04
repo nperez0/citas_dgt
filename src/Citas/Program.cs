@@ -61,21 +61,37 @@ try
       if (el) el.click();
     }");
     Log.Information("Trámite seleccionado mediante JavaScript");
+    
+    // Esperar a que se procese la selección del trámite
+    await WaitPrimeFacesQueueAsync(page);
+    await Task.Delay(2000); // Espera adicional para que el servidor procese
 
     Log.Information("Esperando que la sección de cita sea visible...");
-    await selCita.WaitForAsync(new() { State = WaitForSelectorState.Visible });
-    Log.Information("Sección de cita visible");
+    try
+    {
+        await selCita.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 60000 });
+        Log.Information("Sección de cita visible");
+    }
+    catch (TimeoutException)
+    {
+        Log.Warning("Timeout esperando la sección de cita. Tomando screenshot...");
+        await page.ScreenshotAsync(new() { Path = "timeout-error.png", FullPage = true });
+        
+        // Log del HTML actual para debugging
+        var bodyHtml = await page.Locator("body").InnerHTMLAsync();
+        Log.Information("HTML actual (primeros 1000 caracteres): {Html}", bodyHtml.Substring(0, Math.Min(1000, bodyHtml.Length)));
+        throw;
+    }
 
     Log.Information("Verificando disponibilidad del calendario...");
     if (await selCalendario.IsVisibleAsync())
     {
         Log.Information("✓ ¡Citas disponibles!");
-        //await SendMessageAsync("¡Citas disponibles!");
+        await SendMessageAsync("¡Citas disponibles!");
     }
     else
     {
         Log.Information("✗ No hay citas disponibles");
-        //await SendMessageAsync("No hay citas disponibles");
     }
     
     Log.Information("Aplicación finalizada correctamente");
@@ -111,7 +127,7 @@ async Task SendMessageAsync(string text)
 {
     var token = Environment.GetEnvironmentVariable("TELEGRAM_BOT_TOKEN");
     var chatId = Environment.GetEnvironmentVariable("TELEGRAM_CHAT_ID");
-    
+
     if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(chatId))
         throw new InvalidOperationException("Faltan TELEGRAM_BOT_TOKEN o TELEGRAM_CHAT_ID.");
 
