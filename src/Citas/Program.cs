@@ -79,7 +79,23 @@ try
         
         // Log del HTML actual para debugging
         var bodyHtml = await page.Locator("body").InnerHTMLAsync();
-        Log.Information("HTML actual (1000 caracteres): {Html}", bodyHtml.Substring(20500, 21500));
+        
+        // Buscar el string seleccionarTramitea_ y extraer contexto
+        var searchString = "seleccionarTramitea_";
+        var index = bodyHtml.IndexOf(searchString);
+        if (index >= 0)
+        {
+            var start = Math.Max(0, index - 100);
+            var length = Math.Min(bodyHtml.Length - start, 200 + searchString.Length);
+            var context = bodyHtml.Substring(start, length);
+            Log.Information("Contexto alrededor de '{SearchString}': {Context}", searchString, context);
+        }
+        else
+        {
+            Log.Warning("No se encontró '{SearchString}' en el HTML", searchString);
+            Log.Information("HTML actual (primeros 1000 caracteres): {Html}", bodyHtml.Substring(0, Math.Min(1000, bodyHtml.Length)));
+        }
+        
         throw;
     }
 
