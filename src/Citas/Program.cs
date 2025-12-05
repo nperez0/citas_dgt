@@ -51,7 +51,7 @@ try
     await WaitPrimeFacesQueueAsync(page);
     Log.Information("Formulario enviado");
 
-    await Thread.Delay(3000); 
+    await Task.Delay(3000);
 
     Log.Information("Ejecutando JavaScript para seleccionar trámite específico...");
     await page.EvaluateAsync(@"() => {
