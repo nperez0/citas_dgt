@@ -51,9 +51,7 @@ try
     await WaitPrimeFacesQueueAsync(page);
     Log.Information("Formulario enviado");
 
-    Log.Information("Esperando que el selector de trámite se oculte...");
-    await selTramite.WaitForAsync(new() { State = WaitForSelectorState.Hidden });
-    Log.Information("Selector de trámite oculto");
+    await Task.Delay(3000); // Esperar tres segundos para asegurar que el DOM se ha actualizado
 
     Log.Information("Ejecutando JavaScript para seleccionar trámite específico...");
     var clickResult = await page.EvaluateAsync<string>(@"() => {
