@@ -56,11 +56,30 @@ try
     Log.Information("Selector de trámite oculto");
 
     Log.Information("Ejecutando JavaScript para seleccionar trámite específico...");
-    await page.EvaluateAsync(@"() => {
+    var clickResult = await page.EvaluateAsync<string>(@"() => {
       const el = document.getElementById('seleccionarTramitea_264');
-      if (el) el.click();
+      if (!el) return 'ERROR: Element not found';
+      
+      // Hacer el elemento visible temporalmente si está oculto
+      const originalDisplay = el.style.display;
+      if (el.style.display === 'none' || el.offsetParent === null) {
+        el.style.display = 'block';
+      }
+      
+      // Disparar el evento click y otros eventos relacionados
+      el.click();
+      
+      // Disparar eventos manualmente por si PrimeFaces los necesita
+      el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+      el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+      el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      
+      // Restaurar display original
+      el.style.display = originalDisplay;
+      
+      return 'SUCCESS: Click ejecutado (elemento estaba oculto)';
     }");
-    Log.Information("Trámite seleccionado mediante JavaScript");
+    Log.Information("Resultado del click JavaScript: {ClickResult}", clickResult);
     
     Log.Information("Esperando que la sección de cita sea visible...");
     try
@@ -72,25 +91,6 @@ try
     {
         Log.Warning("Timeout esperando la sección de cita. Tomando screenshot...");
         await page.ScreenshotAsync(new() { Path = "timeout-error.png", FullPage = true });
-        
-        // Log del HTML actual para debugging
-        var bodyHtml = await page.Locator("body").InnerHTMLAsync();
-        
-        // Buscar el string seleccionarTramitea_ y extraer contexto
-        var searchString = "seleccionarTramitea_";
-        var index = bodyHtml.IndexOf(searchString);
-        if (index >= 0)
-        {
-            var start = Math.Max(0, index - 100);
-            var length = Math.Min(bodyHtml.Length - start, 200 + searchString.Length);
-            var contextTramite = bodyHtml.Substring(start, length);
-            Log.Information("Contexto alrededor de '{SearchString}': {Context}", searchString, contextTramite);
-        }
-        else
-        {
-            Log.Warning("No se encontró '{SearchString}' en el HTML", searchString);
-            Log.Information("HTML actual (primeros 1000 caracteres): {Html}", bodyHtml.Substring(0, Math.Min(1000, bodyHtml.Length)));
-        }
         
         throw;
     }
