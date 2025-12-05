@@ -3,7 +3,13 @@ name: Cita diaria
 
 on:
   schedule:
-    - cron: "1 9 * * *" # Corre todos los días a las 09:01 UTC
+    - cron: "0 9 * * *"    # 09:00 UTC
+    - cron: "5 9 * * *"    # 09:05 UTC
+    - cron: "10 9 * * *"   # 09:10 UTC
+    - cron: "15 9 * * *"   # 09:15 UTC
+    - cron: "20 9 * * *"   # 09:20 UTC
+    - cron: "25 9 * * *"   # 09:25 UTC
+    - cron: "30 9 * * *"   # 09:30 UTC
   workflow_dispatch: {}
 
 jobs:

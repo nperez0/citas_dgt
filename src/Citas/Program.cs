@@ -51,47 +51,18 @@ try
     await WaitPrimeFacesQueueAsync(page);
     Log.Information("Formulario enviado");
 
-    await Task.Delay(3000); // Esperar tres segundos para asegurar que el DOM se ha actualizado
+    await Thread.Delay(3000); 
 
     Log.Information("Ejecutando JavaScript para seleccionar trámite específico...");
-    var clickResult = await page.EvaluateAsync<string>(@"() => {
+    await page.EvaluateAsync(@"() => {
       const el = document.getElementById('seleccionarTramitea_264');
-      if (!el) return 'ERROR: Element not found';
-      
-      // Hacer el elemento visible temporalmente si está oculto
-      const originalDisplay = el.style.display;
-      if (el.style.display === 'none' || el.offsetParent === null) {
-        el.style.display = 'block';
-      }
-      
-      // Disparar el evento click y otros eventos relacionados
-      el.click();
-      
-      // Disparar eventos manualmente por si PrimeFaces los necesita
-      el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-      el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
-      el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-      
-      // Restaurar display original
-      el.style.display = originalDisplay;
-      
-      return 'SUCCESS: Click ejecutado (elemento estaba oculto)';
+      if (el) el.click();
     }");
-    Log.Information("Resultado del click JavaScript: {ClickResult}", clickResult);
-    
+    Log.Information("Trámite seleccionado mediante JavaScript");
+
     Log.Information("Esperando que la sección de cita sea visible...");
-    try
-    {
-        await selCita.WaitForAsync(new() { State = WaitForSelectorState.Visible });
-        Log.Information("Sección de cita visible");
-    }
-    catch (TimeoutException)
-    {
-        Log.Warning("Timeout esperando la sección de cita. Tomando screenshot...");
-        await page.ScreenshotAsync(new() { Path = "timeout-error.png", FullPage = true });
-        
-        throw;
-    }
+    await selCita.WaitForAsync(new() { State = WaitForSelectorState.Visible });
+    Log.Information("Sección de cita visible");
 
     Log.Information("Verificando disponibilidad del calendario...");
     if (await selCalendario.IsVisibleAsync())
