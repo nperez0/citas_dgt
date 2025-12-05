@@ -62,10 +62,6 @@ try
     }");
     Log.Information("Trámite seleccionado mediante JavaScript");
     
-    // Esperar a que se procese la selección del trámite
-    await WaitPrimeFacesQueueAsync(page);
-    await Task.Delay(2000); // Espera adicional para que el servidor procese
-
     Log.Information("Esperando que la sección de cita sea visible...");
     try
     {
@@ -87,8 +83,8 @@ try
         {
             var start = Math.Max(0, index - 100);
             var length = Math.Min(bodyHtml.Length - start, 200 + searchString.Length);
-            var context = bodyHtml.Substring(start, length);
-            Log.Information("Contexto alrededor de '{SearchString}': {Context}", searchString, context);
+            var contextTramite = bodyHtml.Substring(start, length);
+            Log.Information("Contexto alrededor de '{SearchString}': {Context}", searchString, contextTramite);
         }
         else
         {
